@@ -47,10 +47,6 @@ var formManager = function(){
                     continue;
                 }
 
-                // if(!this.isElementVisible(elem)){
-                //     continue;
-                // }
-
                 if (skipEmptyFields && !elem.value){
                     continue;
                 }
@@ -99,21 +95,28 @@ var formManager = function(){
                 return [null, null, null];
             }
 
-
-
             // Locate the username field in the form by searching backwards
             // from the first passwordfield, assume the first text field is the
             // username. We might not find a username field if the user is
             // already logged in to the site.
+	    usernameFieldCandidates = []
             for (var i = pwFields[0].index - 1; i >= 0; i--) {
-                // if(!this.isElementVisible(form.elements[i])){
-                //     continue;
-                // }
                 if (form.elements[i].type.toLowerCase() === "text" || form.elements[i].type.toLowerCase() === "email") {
-                    usernameField = form.elements[i];
-                    break;
+		    usernameFieldCandidates.push(form.elements[i]);
                 }
             }
+	    if(usernameFieldCandidates.length >= 1) {
+		// if there are more than one usernameFields, choose the first visible one
+		for (var i = 0; i < usernameFieldCandidates.length; i ++) {
+		    if(this.isElementVisible(usernameFieldCandidates[i])) {
+			usernameField = usernameFieldCandidates[i];
+			break;
+		    }
+		}
+		if(!usernameField) {
+		    usernameField = usernameFieldCandidates[0];
+		}
+	    }
 
             if (!usernameField){
                 this.log('(form ('+ form.action +') ignored -- no username field found)');
@@ -185,6 +188,31 @@ var formManager = function(){
     };
 }();
 
+
+function getDivUsernameField(loginDiv) {
+}
+
+// Find the common parent of all the pw fields
+function getPwChangeDiv(pwFields) {
+}
+
+// Search parent until a div with class/id login is found
+function getLoginDiv(pwField) {
+}
+
+// return [passwordField, loginDiv, Option<newPasswordfield>]
+function getDivPasswordFields() {
+    var inputs = document.getElementsByTagName('input');
+    var pwFields = Array.from(inputs).filter(input => input.type === "password");
+    if(pwFields.length == 1) {
+	var ret = [null, pwFields[0], null];
+	
+    } else if(pwFields.length > 1) { // may 
+	return [null, null, null];
+    }
+    return [null, null, null]; // nothing found
+}
+
 function getLoginFields(isSubmission) {
     var forms = document.forms;
     var loginForms = [];
@@ -195,7 +223,7 @@ function getLoginFields(isSubmission) {
         var usernameField = result[0];
         var passwordField = result[1];
         // Need a valid password field to do anything.
-        if (passwordField === null){
+        if (passwordField === null) {
             continue;
         }
 
@@ -206,6 +234,22 @@ function getLoginFields(isSubmission) {
             res.push(null);
         }
         loginForms.push(res);
+    }
+    if(loginForms.length == 0) { // Cannot find forms, warp into div logic
+	// Returns loginDiv, passwordField, newPasswordField
+	// var result = getDivPasswordFields();
+	// var loginDiv = result[0];
+	// var passwordField = result[1];
+	// if (loginDiv !== null && passwordField !== null) {
+	//     var usernameField = getDivUsernameField(loginDiv);
+	//     if (usernameField !== null) { // login form div
+	// 	var res = [usernameField, passwordField];
+	// 	res.push(null); // the new password field is null
+	// 	loginForms.push(res);
+	//     } else { // password change div
+	// 	// do nothing at this point
+	//     }
+	// }
     }
     return loginForms;
 }
