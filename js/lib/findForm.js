@@ -47,9 +47,9 @@ var formManager = function(){
                     continue;
                 }
 
-                if(!this.isElementVisible(elem)){
-                    continue;
-                }
+                // if(!this.isElementVisible(elem)){
+                //     continue;
+                // }
 
                 if (skipEmptyFields && !elem.value){
                     continue;
@@ -106,9 +106,9 @@ var formManager = function(){
             // username. We might not find a username field if the user is
             // already logged in to the site.
             for (var i = pwFields[0].index - 1; i >= 0; i--) {
-                if(!this.isElementVisible(form.elements[i])){
-                    continue;
-                }
+                // if(!this.isElementVisible(form.elements[i])){
+                //     continue;
+                // }
                 if (form.elements[i].type.toLowerCase() === "text" || form.elements[i].type.toLowerCase() === "email") {
                     usernameField = form.elements[i];
                     break;
